@@ -1,0 +1,6 @@
+{
+  "name": "POJ Monitoring",
+  "description": "Platform observasi dan evaluasi praktik POJ (Practical Onboarding) untuk Trainer Officer, mencakup penilaian Picking, Packing, dan integrasi Google Sheets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
