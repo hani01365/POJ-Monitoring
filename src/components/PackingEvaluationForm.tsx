@@ -36,7 +36,7 @@ export const PackingEvaluationForm: React.FC<PackingEvaluationFormProps> = ({
   const [manualName, setManualName] = useState('');
   const [manualStaffId, setManualStaffId] = useState('');
   const [participants, setParticipants] = useState<Participant[]>([
-    { id: 'p-demo-1', name: 'Coki Bau', staffId: '69420' }
+    { id: 'p-demo-1', name: 'Coki Cha', staffId: '69420' }
   ]);
 
   // Field 3: Evaluations per participant
@@ -384,7 +384,7 @@ Ahmad Ahn - 33140`
               A
             </div>
             <h2 className="text-lg font-extrabold text-[#0c1a40]">
-              Data Diri Trainer Officer
+              Trainer yang Menilai
             </h2>
           </div>
           <span className="text-xs font-semibold text-[#64748b] bg-slate-100 px-3 py-1 rounded-full">
@@ -420,7 +420,7 @@ Ahmad Ahn - 33140`
               required
               value={trainer.staffId}
               onChange={e => setTrainer({ ...trainer, staffId: e.target.value })}
-              placeholder="Contoh: TR-8921"
+              placeholder="Contoh: AST-01365"
               className="w-full px-4 py-3 rounded-2xl border border-[#d9e2ec] focus:outline-none focus:ring-4 focus:ring-[#004aad]/10 focus:border-[#004aad] text-sm text-[#0c1a40] bg-white placeholder-[#94a3b8] transition-all font-mono"
             />
           </div>

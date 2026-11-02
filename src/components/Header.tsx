@@ -12,6 +12,37 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenWebhookGuide,
   hasWebhookConfigured
 }) => {
+  const [copiedLink, setCopiedLink] = React.useState(false);
+
+  const handleShareApp = async () => {
+    const shareUrl = 'https://ais-pre-knqgzr4lyqpwbmjxtwmple-223186062059.asia-east1.run.app';
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'POJ Monitoring - Observasi & Evaluasi Praktik Lapangan',
+          text: 'Aplikasi Form Evaluasi Praktik Lapangan (POJ)',
+          url: shareUrl
+        });
+        return;
+      } catch {
+        // Fallback to clipboard
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = shareUrl;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2500);
+  };
+
   return (
     <header className="border-b border-[#0c1a40]/8 bg-white/80 backdrop-blur-md sticky top-0 z-30 transition-colors">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -33,8 +64,33 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </button>
 
-        {/* Webhook Sheets status button: Pill shape */}
-        <div className="flex items-center">
+        {/* Webhook Sheets, Google Drive, & Share buttons */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleShareApp}
+            className={`px-3 py-1.5 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 whitespace-nowrap shadow-xs cursor-pointer ${
+              copiedLink 
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-300' 
+                : 'border-slate-200 bg-white hover:bg-slate-50 text-[#0c1a40]'
+            }`}
+            title="Bagikan link aplikasi ini"
+          >
+            <span>{copiedLink ? '✅' : '🔗'}</span>
+            <span className="hidden sm:inline">{copiedLink ? 'Link Tersalin!' : 'Bagikan'}</span>
+          </button>
+
+          <a
+            href="https://drive.google.com/drive/folders/1SZQPwZLTQM1yszL1giQFZnkG4hUKt6go?usp=drive_link"
+            target="_blank"
+            rel="noreferrer"
+            className="px-3 py-1.5 text-xs font-bold rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-[#0c1a40] transition-all flex items-center gap-1.5 whitespace-nowrap shadow-xs"
+            title="Buka Folder Foto di Google Drive"
+          >
+            <span className="text-xs">📁</span>
+            <span className="hidden sm:inline">Folder Drive</span>
+          </a>
+
           <button
             onClick={onOpenWebhookGuide}
             className={`px-3.5 py-1.5 text-xs font-bold rounded-full border transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${

@@ -67,7 +67,7 @@ export const SubmitConfirmModal: React.FC<SubmitConfirmModalProps> = ({
           {/* Session Overview Box */}
           <div className="bg-slate-50/80 rounded-2xl p-4 border border-slate-200/80 text-xs space-y-2">
             <div className="flex justify-between pb-2 border-b border-slate-200/60">
-              <span className="text-[#64748b]">Trainer Officer:</span>
+              <span className="text-[#64748b]">Trainer yang Menilai:</span>
               <span className="font-bold text-[#0c1a40]">{trainer.nama} ({trainer.staffId})</span>
             </div>
             <div className="flex justify-between pb-2 border-b border-slate-200/60">

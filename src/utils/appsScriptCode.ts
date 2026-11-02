@@ -4,23 +4,42 @@
  */
 
 export const GOOGLE_APPS_SCRIPT_CODE = `/**
- * POJ MONITORING - GOOGLE APPS SCRIPT WEBHOOK
+ * POJ MONITORING - GOOGLE APPS SCRIPT WEBHOOK & DRIVE INTEGRATION
  * 
- * Petunjuk Pemasangan:
- * 1. Buka Google Sheets baru atau yang sudah ada (misal bernama "Data Evaluasi POJ").
- * 2. Klik menu "Extensions" > "Apps Script".
- * 3. Hapus semua kode yang ada di editor, lalu PASTE kode di bawah ini.
- * 4. Klik ikon "Save" (Disket) atau tekan Ctrl+S.
- * 5. Klik tombol "Deploy" di kanan atas > pilih "New deployment".
- * 6. Klik ikon gerigi (Select type) > pilih "Web app".
- * 7. Isi konfigurasi:
- *    - Description: POJ Monitoring Webhook
- *    - Execute as: "Me" (email akun Anda)
- *    - Who has access: "Anyone" (PENTING: Harus Anyone agar webapp bisa mengirim data tanpa login)
- * 8. Klik "Deploy", lalu berikan izin akses (Authorize access).
- * 9. Salin "Web app URL" (format: https://script.google.com/macros/s/.../exec).
- * 10. Tempelkan URL tersebut ke kolom Webhook Settings di aplikasi POJ Monitoring.
+ * ============================================================================
+ * SOLUSI: "Error Drive: Anda tidak memiliki izin untuk memanggil DriveApp"
+ * ============================================================================
+ * Karena script ini menggunakan Google Drive untuk menyimpan foto, Google
+ * mewajibkan Anda menyetujui izin (Authorize) SEKALI lewat tombol "Run":
+ * 
+ * 1. Simpan kode ini di Apps Script (ikon Disket atau Ctrl+S).
+ * 2. Di toolbar atas editor Apps Script (sebelah tombol "Debug"), ubah pilihan fungsi menjadi:
+ *    "beriIzinAksesDrive"
+ * 3. Klik tombol "Run" (atau "Jalankan" ▶️).
+ * 4. Akan muncul popup "Authorization Required" (Otorisasi Diperlukan):
+ *    - Klik "Review Permissions" / "Tinjau Izin"
+ *    - Pilih akun Google Anda (hanifah.ramadini@astronauts.id)
+ *    - Jika muncul peringatan keamanan, klik "Advanced" (Lanjutan) > klik "Go to ... (unsafe)"
+ *    - Klik "Allow" / "Izinkan".
+ * 5. Setelah selesai diizinkan, perbarui deployment Web App:
+ *    - Klik "Deploy" > "Manage deployments"
+ *    - Klik ikon pensil ✏️ (Edit)
+ *    - Pada opsi Version, pilih "New version"
+ *    - Klik "Deploy". Selesai!
  */
+
+// Jalankan fungsi ini di editor Apps Script dengan klik Run ▶️ untuk menyetujui izin TULIS Google Drive
+function beriIzinAksesDrive() {
+  var folderId = "1SZQPwZLTQM1yszL1giQFZnkG4hUKt6go";
+  var folder = DriveApp.getFolderById(folderId);
+  
+  // Wajib panggil createFile di sini agar Google meminta izin TULIS (https://www.googleapis.com/auth/drive)
+  var testFile = folder.createFile("tes_izin_akses.txt", "Izin berhasil aktif!", MimeType.PLAIN_TEXT);
+  testFile.setTrashed(true); // Langsung hapus file tes ke sampah agar folder tetap bersih
+  
+  var sheet = SpreadsheetApp.getActiveSpreadsheet();
+  Logger.log("✅ SUKSES TOTAL! Izin Tulis/Simpan Google Drive & Spreadsheet BERHASIL aktif.");
+}
 
 function doPost(e) {
   var lock = LockService.getScriptLock();
@@ -84,7 +103,8 @@ function doPost(e) {
     var submissionTimestamp = data.timestamp || new Date().toISOString();
     var rowsAppended = 0;
 
-    // Persiapkan folder Google Drive untuk foto jika ada data gambar
+    // Persiapkan folder Google Drive untuk foto (Folder ID spesifik)
+    var TARGET_FOLDER_ID = "1SZQPwZLTQM1yszL1giQFZnkG4hUKt6go";
     var photoFolder = null;
 
     participants.forEach(function(p) {
@@ -101,15 +121,18 @@ function doPost(e) {
       if (p.photoBase64 && typeof p.photoBase64 === "string" && p.photoBase64.indexOf("base64,") !== -1) {
         try {
           if (!photoFolder) {
-            var folders = DriveApp.getFoldersByName("POJ_Dokumentasi_Foto");
-            if (folders.hasNext()) {
-              photoFolder = folders.next();
-            } else {
-              photoFolder = DriveApp.createFolder("POJ_Dokumentasi_Foto");
+            try {
+              photoFolder = DriveApp.getFolderById(TARGET_FOLDER_ID);
+            } catch (folderErr) {
+              var folders = DriveApp.getFoldersByName("POJ_Dokumentasi_Foto");
+              photoFolder = folders.hasNext() ? folders.next() : DriveApp.createFolder("POJ_Dokumentasi_Foto");
             }
           }
 
-          var base64Content = p.photoBase64.split("base64,")[1];
+          var base64Content = p.photoBase64.indexOf("base64,") !== -1 
+            ? p.photoBase64.split("base64,")[1] 
+            : p.photoBase64;
+
           var decodedBlob = Utilities.newBlob(
             Utilities.base64Decode(base64Content),
             "image/jpeg",
@@ -117,11 +140,23 @@ function doPost(e) {
           );
 
           var driveFile = photoFolder.createFile(decodedBlob);
-          driveFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+          
+          // Coba set sharing link (abaikan error jika domain Google Workspace membatasi sharing luar)
+          try {
+            driveFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+          } catch (shareErr) {
+            try {
+              driveFile.setSharing(DriveApp.Access.DOMAIN_WITH_LINK, DriveApp.Permission.VIEW);
+            } catch (domainErr) {
+              // Tetap lanjut, file tetap tersimpan di Drive pemilik
+            }
+          }
+
           var fileUrl = driveFile.getUrl();
-          fotoCell = '=HYPERLINK("' + fileUrl + '", "Lihat Foto")';
+          // Simpan link Google Drive langsung tanpa diubah formatnya
+          fotoCell = fileUrl;
         } catch (driveErr) {
-          fotoCell = "Foto Tersimpan (" + (p.photoBase64.length > 500 ? "Base64 OK" : "Tersedia") + ")";
+          fotoCell = "Error Drive: " + (driveErr.message || driveErr.toString());
         }
       }
 

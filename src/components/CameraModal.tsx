@@ -22,7 +22,6 @@ export const CameraModal: React.FC<CameraModalProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const nativeCameraInputRef = useRef<HTMLInputElement | null>(null);
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
 
   // Stop current stream
@@ -244,17 +243,7 @@ export const CameraModal: React.FC<CameraModalProps> = ({
                   <span>{permissionState === 'requesting' ? 'Menghubungkan Kamera...' : 'Izinkan & Buka Kamera Live'}</span>
                 </button>
 
-                {/* Option B: Native Device Camera (works 100% on all mobile devices!) */}
-                <button
-                  type="button"
-                  onClick={() => nativeCameraInputRef.current?.click()}
-                  className="w-full py-3 px-4 rounded-full bg-blue-50 hover:bg-blue-100 border border-blue-200 text-[#004aad] font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
-                >
-                  <span className="text-base">📱</span>
-                  <span>Buka Kamera HP Bawaan (Native)</span>
-                </button>
-
-                {/* Option C: Gallery */}
+                {/* Option B: Gallery */}
                 <button
                   type="button"
                   onClick={() => galleryInputRef.current?.click()}
@@ -311,11 +300,12 @@ export const CameraModal: React.FC<CameraModalProps> = ({
               <div className="flex items-center justify-between gap-3 pt-1">
                 <button
                   type="button"
-                  onClick={() => nativeCameraInputRef.current?.click()}
-                  className="px-3.5 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-[#475569] text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                  onClick={handleSwitchFacing}
+                  className="px-4 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-[#475569] text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                  title="Balik Kamera Depan / Belakang"
                 >
-                  <span>📱</span>
-                  <span>Kamera HP</span>
+                  <span>🔄</span>
+                  <span className="hidden sm:inline">Balik</span>
                 </button>
 
                 <button
@@ -330,7 +320,7 @@ export const CameraModal: React.FC<CameraModalProps> = ({
                 <button
                   type="button"
                   onClick={() => galleryInputRef.current?.click()}
-                  className="px-3.5 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-[#475569] text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                  className="px-4 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-[#475569] text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
                 >
                   <span>🖼️</span>
                   <span>Galeri</span>
@@ -371,15 +361,7 @@ export const CameraModal: React.FC<CameraModalProps> = ({
             </div>
           )}
 
-          {/* Hidden inputs for Native Camera & Gallery fallback */}
-          <input
-            ref={nativeCameraInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={handleNativeOrGalleryUpload}
-          />
+          {/* Hidden input for Gallery selection */}
           <input
             ref={galleryInputRef}
             type="file"

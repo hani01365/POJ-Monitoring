@@ -56,8 +56,24 @@ export const WebhookGuideModal: React.FC<WebhookGuideModalProps> = ({
     setTestMessage('Menguji koneksi ke Google Apps Script...');
 
     try {
-      // 1x1 valid sample JPEG base64 for testing Drive upload & column P
-      const samplePhotoBase64 = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=';
+      // Generate a clean 100x100 sample JPEG image for testing Google Drive saving & hyperlink
+      let samplePhotoBase64 = '';
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 100;
+        canvas.height = 100;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.fillStyle = '#004aad';
+          ctx.fillRect(0, 0, 100, 100);
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 12px sans-serif';
+          ctx.fillText('TEST FOTO', 14, 55);
+        }
+        samplePhotoBase64 = canvas.toDataURL('image/jpeg', 0.85);
+      } catch {
+        samplePhotoBase64 = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=';
+      }
 
       const testPayload = {
         id: `test-${Date.now()}`,
@@ -229,27 +245,42 @@ export const WebhookGuideModal: React.FC<WebhookGuideModalProps> = ({
             </ol>
           </div>
 
-          {/* Special notice for existing deployments */}
-          <div className="bg-amber-50/80 border border-amber-200 p-4 rounded-2xl space-y-2 text-[#78350f]">
-            <div className="flex items-center gap-2 font-bold text-xs text-[#92400e]">
-              <span>💡</span>
-              <span>Sudah pernah pasang Webhook sebelumnya & kolom Foto belum muncul?</span>
+          {/* Special notice: Solusi Error Drive Izin Akses */}
+          <div className="bg-rose-50/90 border border-rose-200 p-4 rounded-2xl space-y-2.5 text-rose-900">
+            <div className="flex items-center gap-2 font-bold text-xs text-rose-800">
+              <span className="text-base">🚨</span>
+              <span>Muncul Pesan: "Anda tidak memiliki izin untuk memanggil DriveApp"?</span>
             </div>
-            <p className="text-[11px] leading-relaxed">
-              Google Apps Script memerlukan <strong>versi deployment baru</strong> untuk memperbarui kode. Ikuti langkah singkat ini:
+            <p className="text-[11px] text-rose-800/90 leading-relaxed">
+              Ini terjadi karena Google Apps Script mewajibkan persetujuan izin (Authorize) lewat editor saat pertama kali menambahkan akses Drive. Ikuti <strong>4 langkah cepat ini</strong>:
             </p>
-            <ol className="list-decimal list-inside text-[11px] space-y-1 ml-1 text-[#92400e]">
-              <li>Buka kembali editor <strong>Apps Script</strong> di spreadsheet Anda.</li>
-              <li>Hapus isi <code className="bg-white/80 px-1 py-0.5 rounded font-mono">Code.gs</code> lalu tempelkan seluruh kode terbaru dari tombol di bawah.</li>
-              <li>Klik menu <strong>Deploy</strong> &gt; pilih <strong>Manage deployments</strong>.</li>
-              <li>Klik ikon pensil ✏️ (<strong>Edit</strong>) di samping deployment aktif Anda.</li>
-              <li>Pada opsi <strong>Version</strong>, pilih <strong>New version</strong>.</li>
-              <li>Klik tombol <strong>Deploy</strong> (dan setujui izin Google Drive jika diminta).</li>
-              <li>Klik <strong>Test Koneksi</strong> di atas untuk langsung melihat link <em>Lihat Foto</em> di Kolom P (Foto Dokumentasi)!</li>
+            <ol className="list-decimal list-inside text-[11px] space-y-1.5 ml-1 text-rose-900 font-medium">
+              <li>
+                Di editor <strong>Apps Script</strong>, tempelkan kode terbaru dari tombol <strong>"Salin Seluruh Kode"</strong> di bawah lalu klik <strong>Save (Disket)</strong>.
+              </li>
+              <li>
+                Di toolbar atas (sebelah tombol "Debug"), ubah dropdown fungsi menjadi <strong><code>beriIzinAksesDrive</code></strong> lalu klik tombol <strong>Run (Jalankan ▶️)</strong>.
+              </li>
+              <li>
+                Akan muncul popup: Klik <strong>Review Permissions</strong> &gt; pilih akun Google Anda (<strong>hanifah.ramadini@astronauts.id</strong>) &gt; klik <strong>Advanced</strong> (Lanjutan) &gt; klik <strong>Allow (Izinkan)</strong>.
+              </li>
+              <li>
+                Setelah muncul tulisan <em>"Execution completed"</em>, klik menu <strong>Deploy</strong> &gt; <strong>Manage deployments</strong> &gt; klik pensil ✏️ (<strong>Edit</strong>) &gt; pilih <strong>New version</strong> &gt; klik <strong>Deploy</strong>.
+              </li>
             </ol>
-            <div className="text-[11px] font-semibold text-[#b45309] bg-white/70 p-2.5 rounded-xl border border-amber-100 flex items-center gap-1.5">
-              <span>📁</span>
-              <span>Foto disimpan otomatis di <strong>Google Drive</strong> Anda pada folder <strong>POJ_Dokumentasi_Foto</strong>.</span>
+            <div className="text-[11px] font-semibold text-blue-900 bg-white/80 p-3 rounded-xl border border-blue-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 mt-2">
+              <div className="flex items-center gap-1.5">
+                <span>📁</span>
+                <span>Foto akan otomatis masuk ke folder Google Drive Anda: <strong>1SZQPwZLTQM1yszL1giQFZnkG4hUKt6go</strong></span>
+              </div>
+              <a
+                href="https://drive.google.com/drive/folders/1SZQPwZLTQM1yszL1giQFZnkG4hUKt6go?usp=drive_link"
+                target="_blank"
+                rel="noreferrer"
+                className="px-3.5 py-1.5 rounded-full bg-[#004aad] text-white font-bold text-xs inline-flex items-center gap-1 hover:bg-[#003d8f] transition-all whitespace-nowrap shadow-xs"
+              >
+                <span>Buka Google Drive ↗️</span>
+              </a>
             </div>
           </div>
 

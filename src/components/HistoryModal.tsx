@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { POJSubmission } from '../types';
 import { exportSubmissionsToCsv, sendSubmissionToWebhook, updateSubmissionSyncStatus } from '../utils/storage';
+import { generateTrainerRecapText } from '../utils/recapFormatter';
 
 interface HistoryModalProps {
   isOpen: boolean;
@@ -53,6 +54,22 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
       updateSubmissionSyncStatus(sub.id, false, result.message);
       onRefreshSubmissions();
       setFeedbackMsg({ text: `Gagal mengirim: ${result.message}`, isError: true });
+    }
+  };
+
+  const handleCopyRecap = async (sub: POJSubmission) => {
+    const text = generateTrainerRecapText(sub);
+    try {
+      await navigator.clipboard.writeText(text);
+      setFeedbackMsg({ text: `📋 Teks rekap sesi ${sub.id} (${sub.trainer.lokasi}) berhasil disalin ke clipboard!` });
+    } catch {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      setFeedbackMsg({ text: `📋 Teks rekap sesi ${sub.id} (${sub.trainer.lokasi}) berhasil disalin ke clipboard!` });
     }
   };
 
@@ -165,10 +182,20 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                     </div>
 
                     <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleCopyRecap(sub)}
+                        className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-white hover:bg-blue-50 text-[#004aad] border border-blue-200 flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                        title="Salin teks rekap rapi sesi ini"
+                      >
+                        <span>📋</span>
+                        <span>Salin Rekap</span>
+                      </button>
+
                       {sub.syncedToWebhook ? (
-                        <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
+                        <span className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
                           <span>✅</span>
-                          <span>Tersinkron Sheets</span>
+                          <span className="hidden sm:inline">Tersinkron Sheets</span>
                         </span>
                       ) : (
                         <button
