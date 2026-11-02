@@ -137,7 +137,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen proto-ambient-bg text-[#0c1a40] flex flex-col font-sans">
       {/* Top Navbar */}
       <Header
         currentView={currentView}

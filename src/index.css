@@ -3,9 +3,76 @@
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f8fafc;
+    color: #0c1a40;
+    margin: 0;
+    padding: 0;
   }
   
   code, pre, .font-mono {
     font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Atmospheric backdrop gradient matching the prototype */
+.proto-ambient-bg {
+  background-color: #f1f7fd;
+  background-image: 
+    radial-gradient(ellipse 70% 50% at 15% 15%, rgba(186, 230, 253, 0.65) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 50% at 5% 55%, rgba(254, 240, 138, 0.45) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 45% at 90% 20%, rgba(224, 242, 254, 0.6) 0%, transparent 50%),
+    radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.85) 0%, transparent 70%),
+    linear-gradient(180deg, #eaf3fb 0%, #f6fafd 35%, #ffffff 100%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* Prototype Signature Pill Button with warm ambient drop shadow in #004aad */
+.proto-btn-primary {
+  background-color: #004aad;
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: 9999px;
+  box-shadow: 0 16px 32px -6px rgba(0, 74, 173, 0.42), 0 12px 24px -6px rgba(244, 114, 182, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.proto-btn-primary:hover {
+  background-color: #003d8f;
+  transform: translateY(-1px);
+  box-shadow: 0 18px 36px -6px rgba(0, 74, 173, 0.48), 0 14px 26px -6px rgba(244, 114, 182, 0.4);
+}
+
+.proto-btn-primary:active {
+  transform: translateY(1px) scale(0.985);
+  box-shadow: 0 8px 18px -4px rgba(0, 74, 173, 0.35), 0 6px 14px -4px rgba(244, 114, 182, 0.25);
+}
+
+/* Prototype Card elevation with #004aad */
+.proto-card-active {
+  background: #ffffff;
+  border: 2px solid #004aad;
+  border-radius: 26px;
+  box-shadow: 0 12px 32px -8px rgba(0, 74, 173, 0.16);
+}
+
+.proto-card-inactive {
+  background: #ffffff;
+  border: 1px solid #d9e2ec;
+  border-radius: 26px;
+}
+
+/* Prototype Bottom sheet / Main Content container */
+.proto-sheet-container {
+  background: #ffffff;
+  border-top-left-radius: 36px;
+  border-top-right-radius: 36px;
+  box-shadow: 0 -12px 36px -10px rgba(12, 26, 64, 0.06);
+}
+
+@media (min-width: 640px) {
+  .proto-sheet-container {
+    border-radius: 32px;
+    box-shadow: 0 16px 40px -12px rgba(12, 26, 64, 0.08), 0 0 1px 1px rgba(217, 226, 236, 0.7);
   }
 }

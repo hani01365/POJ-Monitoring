@@ -29,6 +29,8 @@ export interface ParticipantEvaluation {
   staffId: string;
   scores: Record<string, ScoreStatus | undefined>;
   notes: string;
+  photoBase64?: string;
+  photoTimestamp?: string;
 }
 
 export interface POJSubmission {
@@ -100,3 +102,76 @@ export const PACKING_CRITERIA: CriterionConfig[] = [
     options: ['Sesuai', 'Tidak Sesuai']
   }
 ];
+
+export const ASTRO_HUB_LIST: string[] = [
+  'APR - Ampera',
+  'ASA - New Alam Sutera',
+  'BBK - Bubulak',
+  'BDC - BSD City',
+  'BGS - Boulevard Gading Serpong',
+  'BKJ - Bekasi Jaya',
+  'BNH - Bendungan Hilir',
+  'BRY - Buncit Raya',
+  'BS9 - Bintaro Sektor 9',
+  'BSX - New BSD',
+  'CAM - Caman',
+  'CGS - Cimanggis',
+  'CLN - Cilandak',
+  'CNR - Cinere',
+  'CPT - Cipete',
+  'CSA - Cisauk',
+  'CT2 - Citra 2',
+  'CWG - Cawang',
+  'DNS - Danau Sunter',
+  'DST - Duren Sawit',
+  'FTW - Fatmawati',
+  'GDC - Grand Depok City',
+  'GMD - New Gajah Mada',
+  'GNS - Gunung Sahari',
+  'GPL - Gudang Peluru',
+  'GWB - Grand Wisata Bekasi',
+  'HBD - Kelapa Hybrida',
+  'JBG - Jombang',
+  'JLB - Jelambar',
+  'JTG - Jatirangon',
+  'JTI - Jatibening New',
+  'JTN - Jatinegara',
+  'KGS - Kemanggisan',
+  'KJT - Kramat Jati',
+  'KLD - Kelapa Dua',
+  'KLN - Klender',
+  'KPM - Kapuk Muara',
+  'LBB - Lebak Bulus',
+  'LIM - Limo',
+  'MDL - Menteng Dalam',
+  'MGR - Manggarai',
+  'MMP - Mampang Perapatan',
+  'MRG - Margonda',
+  'MRY - Meruya',
+  'MSB - Medan Satria Bekasi',
+  'MTG - Menteng',
+  'PAM - Pamulang',
+  'PBT - Pondok Betung',
+  'PGD - Pulo Gadung',
+  'PHW - Pahlawan',
+  'PIN - New Pondok Indah',
+  'PKC - Pondok Kacang',
+  'PLB - Pluit Barat',
+  'PPL - Panglima Polim',
+  'PPN - Pos Pengumben',
+  'PSG - Pisangan',
+  'RDS - Raden Saleh',
+  'RWB - Rawa Bambu',
+  'SAL - Salemba',
+  'SKR - Sukaraja',
+  'SLP - Slipi',
+  'SMN - Semanan',
+  'SRP - Serpong Utara',
+  'SWG - Sawangan',
+  'SWL - Sawah Lama',
+  'TAP - New Taman Palem',
+  'TDN - Tendean',
+  'TGX - New TGC',
+  'TSY - Transyogi'
+];
+

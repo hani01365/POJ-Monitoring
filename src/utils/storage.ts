@@ -141,7 +141,8 @@ export function exportSubmissionsToCsv(submissions: POJSubmission[]): void {
     '5. Resi & SKU Bulky',
     '6. SLA Waktu',
     'Hasil Akhir',
-    'Catatan Trainer'
+    'Catatan Trainer',
+    'Foto Dokumentasi'
   ];
 
   const rows: string[][] = [];
@@ -168,7 +169,8 @@ export function exportSubmissionsToCsv(submissions: POJSubmission[]): void {
         scores.barcode_resi_bulky || '-',
         scores.sla_packing_time || '-',
         hasil,
-        `"${(p.notes || '').replace(/"/g, '""')}"`
+        `"${(p.notes || '').replace(/"/g, '""')}"`,
+        p.photoBase64 ? 'Ada Foto Bukti' : 'Tidak Ada'
       ]);
     });
   });

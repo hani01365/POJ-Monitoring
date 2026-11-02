@@ -35,29 +35,28 @@ function doPost(e) {
     var sheetName = "POJ_Packing_Evaluations";
     var sheet = ss.getSheetByName(sheetName);
 
+    var headers = [
+      "Timestamp Submission",
+      "Nama Trainer",
+      "Staff ID Trainer",
+      "Lokasi POJ",
+      "Tanggal POJ",
+      "Nama Peserta",
+      "Staff ID Peserta",
+      "1. Urutan Tumpukan",
+      "2. Food & Non-Food",
+      "3. Ice Pack Frozen",
+      "4. Fragile Handling",
+      "5. Resi & SKU Bulky",
+      "6. SLA Waktu",
+      "Hasil Akhir",
+      "Catatan Trainer",
+      "Foto Dokumentasi"
+    ];
+
     // Buat sheet baru jika belum ada
     if (!sheet) {
       sheet = ss.insertSheet(sheetName);
-      
-      // Header Kolom
-      var headers = [
-        "Timestamp Submission",
-        "Nama Trainer",
-        "Staff ID Trainer",
-        "Lokasi POJ",
-        "Tanggal POJ",
-        "Nama Peserta",
-        "Staff ID Peserta",
-        "1. Urutan Tumpukan",
-        "2. Food & Non-Food",
-        "3. Ice Pack Frozen",
-        "4. Fragile Handling",
-        "5. Resi & SKU Bulky",
-        "6. SLA Waktu",
-        "Hasil Akhir",
-        "Catatan Trainer"
-      ];
-      
       sheet.appendRow(headers);
       
       // Format Header
@@ -67,12 +66,26 @@ function doPost(e) {
       headerRange.setFontWeight("bold");
       headerRange.setHorizontalAlignment("center");
       sheet.setFrozenRows(1);
+    } else {
+      // Jika sheet sudah ada sebelumnya tapi belum ada Kolom 16 (Foto Dokumentasi),
+      // otomatis tambahkan header ke Kolom 16 (Kolom P)
+      if (sheet.getRange(1, 16).getValue() === "") {
+        var header16 = sheet.getRange(1, 16);
+        header16.setValue("Foto Dokumentasi");
+        header16.setBackground("#0F172A");
+        header16.setFontColor("#FFFFFF");
+        header16.setFontWeight("bold");
+        header16.setHorizontalAlignment("center");
+      }
     }
 
     var trainer = data.trainer || {};
     var participants = data.participants || [];
     var submissionTimestamp = data.timestamp || new Date().toISOString();
     var rowsAppended = 0;
+
+    // Persiapkan folder Google Drive untuk foto jika ada data gambar
+    var photoFolder = null;
 
     participants.forEach(function(p) {
       var scores = p.scores || {};
@@ -82,6 +95,35 @@ function doPost(e) {
         return scores[k] === "Tidak Sesuai";
       });
       var statusAkhir = hasNotCompliant ? "Perlu Bimbingan" : "Lulus / Sesuai SOP";
+
+      // Proses foto jika dikirimkan (Base64)
+      var fotoCell = "-";
+      if (p.photoBase64 && typeof p.photoBase64 === "string" && p.photoBase64.indexOf("base64,") !== -1) {
+        try {
+          if (!photoFolder) {
+            var folders = DriveApp.getFoldersByName("POJ_Dokumentasi_Foto");
+            if (folders.hasNext()) {
+              photoFolder = folders.next();
+            } else {
+              photoFolder = DriveApp.createFolder("POJ_Dokumentasi_Foto");
+            }
+          }
+
+          var base64Content = p.photoBase64.split("base64,")[1];
+          var decodedBlob = Utilities.newBlob(
+            Utilities.base64Decode(base64Content),
+            "image/jpeg",
+            "POJ_" + (p.staffId || "peserta") + "_" + (new Date().getTime()) + ".jpg"
+          );
+
+          var driveFile = photoFolder.createFile(decodedBlob);
+          driveFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+          var fileUrl = driveFile.getUrl();
+          fotoCell = '=HYPERLINK("' + fileUrl + '", "Lihat Foto")';
+        } catch (driveErr) {
+          fotoCell = "Foto Tersimpan (" + (p.photoBase64.length > 500 ? "Base64 OK" : "Tersedia") + ")";
+        }
+      }
 
       var rowData = [
         submissionTimestamp,
@@ -98,7 +140,8 @@ function doPost(e) {
         scores.barcode_resi_bulky || "N/A",
         scores.sla_packing_time || "N/A",
         statusAkhir,
-        p.notes || "-"
+        p.notes || "-",
+        fotoCell
       ];
 
       sheet.appendRow(rowData);
@@ -106,7 +149,7 @@ function doPost(e) {
     });
 
     // Auto-resize kolom agar rapi
-    for (var col = 1; col <= 15; col++) {
+    for (var col = 1; col <= 16; col++) {
       sheet.autoResizeColumn(col);
     }
 
